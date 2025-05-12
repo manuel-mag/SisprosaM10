@@ -161,4 +161,156 @@ El backend de SISPROSA está construido con el stack moderno de Spring Boot y Ja
 | **Spring Boot Starter Test** | (test)                                                              | Librerías para pruebas unitarias e integración                               |
 
 ---
+## ⚙️ Configuración del Entorno
+
+### Requisitos Previos
+
+- Java 17 (Amazon Corretto u OpenJDK)
+- Maven 3.8+
+- MariaDB 10.6+
+
+### Clonar Proyecto
+
+git clone https://github.com/usuario/sisprosa.git
+cd sisprosa
+
+### Inicialización de base de datos
+
+Al ejecutar la aplicación, los archivos `schema.sql` y `data.sql` en `src/main/resources/db/` crearán automáticamente las tablas y registros base (usuarios, roles, especialidades, etc.).
+
+### Ejecución del sistema
+
+cómo levantar el backend:
+
+./mvnw spring-boot:run
+
+O bien:
+
+mvn clean install
+java -jar target/Sisprosa-0.0.1-SNAPSHOT.jar
+
+
+### Acceso al sistema
+
+El sistema quedará disponible en: http://localhost:8080
+
+--- 
+## 🗃 Modelo de Datos
+
+SISPROSA utiliza una base de datos relacional MariaDB, siguiendo un diseño normalizado que permite una gestión eficiente de pacientes, consultas, historiales médicos, seguimientos y reportes. Las entidades están relacionadas mediante claves foráneas, y se respetan las reglas de integridad referencial.
+
+### 🔑 Tablas Principales y Relaciones
+
+| Tabla                                 | Descripción                                                                        | Relaciones clave                                        |
+| ------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| `patients`                            | Almacena los datos personales y médicos básicos del paciente.                      | Relación 1:1 con `medical_history`                      |
+| `medical_history`                     | Registro clínico del paciente: antecedentes, hábitos, alergias, medicamentos, etc. | FK a `patients`, FK a `healthcare_professionals`        |
+| `healthcare_professionals`            | Profesionales de salud registrados en el sistema.                                  | Relación N\:M con `specialty`, 1\:N con `consultations` |
+| `specialty`                           | Especialidades médicas disponibles (Cardiología, Ginecología, etc.).               | N\:M con `healthcare_professionals`                     |
+| `consultations`                       | Consultas realizadas con detalles clínicos, diagnóstico y tratamiento.             | FK a `patients` y `healthcare_professionals`            |
+| `followups`                           | Seguimientos posteriores a consultas. Incluye fecha, estado y notas.               | Relación 1:1 con `consultations`                        |
+| `authority`                           | Roles de usuario (`ROLE_ADMIN`, `ROLE_PROFESSIONAL`, `ROLE_READONLY`).             | N\:M con `healthcare_professionals`                     |
+| `healthcare_professional_authorities` | Tabla intermedia para asignar múltiples roles por profesional.                     |                                                         |
+| `professional_patient`                | Relación personalizada para asignar pacientes a profesionales específicos.         | N\:M entre `patients` y `healthcare_professionals`      |
+
+### 🧬 Relaciones Destacadas
+
+    1:1 entre patients y medical_history
+    Cada paciente tiene un único historial médico asociado.
+
+    1:N entre patients y consultations
+    Un paciente puede tener muchas consultas registradas.
+
+    1:N entre healthcare_professionals y consultations
+    Un profesional puede atender múltiples consultas.
+
+    1:1 entre consultations y followups
+    Cada consulta puede requerir un único seguimiento registrado.
+
+    N:M entre healthcare_professionals y specialty
+    Un profesional puede tener varias especialidades (y viceversa).
+
+    N:M entre healthcare_professionals y authority
+    Un profesional puede tener múltiples roles asignados en el sistema.
+---
+
+## 🔐 Seguridad y Autenticación
+
+SISPROSA implementa un modelo de seguridad basado en JWT y control de acceso mediante roles personalizados, utilizando Spring Security 6.
+
+## 🔑 Mecanismo de Autenticación
+- El sistema utiliza JSON Web Tokens (JWT) para autenticar peticiones HTTP.
+- Se emite un token tras el inicio de sesión exitoso vía /auth/login.
+- El token debe enviarse en cada petición protegida mediante el header:
+    Authorization: Bearer <token>
+- Se utiliza JwtFilter para validar el token en cada request.
+- Las contraseñas de usuarios se almacenan con BCrypt (11 salt rounds).
+
+## 👥 Roles en el sistema
+Los usuarios (healthcare_professionals) pueden tener uno o más roles asignados mediante la tabla intermedia healthcare_professional_authorities.
+
+Roles admitidos:
+| Rol                 | Descripción                                          |
+| ------------------- | ---------------------------------------------------- |
+| `ROLE_ADMIN`        | Acceso completo a todas las secciones                |
+| `ROLE_PROFESSIONAL` | Profesionales de salud con privilegios médicos       |
+| `ROLE_READONLY`     | Solo lectura para visualizar pacientes e historiales |
+
+
+## 🧩 Rutas públicas y protegidas
+
+### ✅ Acceso público (no requiere autenticación)
+
+    /auth/** – Registro y autenticación
+
+    /login, /doLogout, /error
+
+    Archivos estáticos: /css/**, /js/**, /images/**, /bootstrap/**, /favicon.ico
+
+### 🔐 Acceso con autenticación
+
+    /dashboard – Requiere sesión iniciada
+
+### 🔒 Rutas protegidas por rol
+
+| Ruta                  | Requiere Rol(es)                    |
+| --------------------- | ----------------------------------- |
+| `/patients/**`        | `ADMIN`, `PROFESSIONAL`, `READONLY` |
+| `/medical_history/**` | `ADMIN`, `PROFESSIONAL`, `READONLY` |
+| `/consultations/**`   | `ADMIN`, `PROFESSIONAL`             |
+| `/followups/**`       | `ADMIN`, `PROFESSIONAL`             |
+| `/professionals/**`   | `ADMIN`                             |
+| `/specialties/**`     | `ADMIN`                             |
+
+### 🔁 Flujo de autenticación
+
+1.- Inicio de sesión (POST /auth/login)
+
+    Recibe email y contraseña.
+
+    Devuelve token JWT y datos del usuario.
+
+2.- Acceso a recursos protegidos
+
+    El token debe incluirse en el header Authorization.
+
+3.- Cierre de sesión
+
+    Se realiza vía /doLogout.
+
+    Invalida la sesión y limpia la cookie JSESSIONID.
+
+4.- Manejo de sesiones
+
+    Política: SessionCreationPolicy.IF_REQUIRED
+
+    Soporta sesión en paralelo con cookies y JWT (flujo híbrido listo para expansión).
+
+### 📌 Componentes relevantes
+
+- JwtTokenProvider — Generación y validación de tokens.
+- JwtFilter — Valida el token en cada petición.
+- AuthenticatedUserService — Recupera el usuario autenticado.
+- CustomLogoutSuccessHandler — Comportamiento personalizado al cerrar sesión.
+- AuthenticationService — Lógica de login, emisión de tokens y autenticación.
 
