@@ -314,7 +314,7 @@ Roles admitidos:
 - CustomLogoutSuccessHandler — Comportamiento personalizado al cerrar sesión.
 - AuthenticationService — Lógica de login, emisión de tokens y autenticación.
 
-## ## 🧩 Módulos y Funcionalidades
+## 🧩 Módulos y Funcionalidades
 
 El sistema SISPROSA se organiza por módulos funcionales, accesibles según el rol del usuario autenticado. A continuación, se detallan los principales:
 
@@ -462,12 +462,34 @@ Cuerpo de ejemplo:
   "respiratoryRate": 18
 }
 
-🔄 Cambiar estado de seguimiento – PUT /followups/change-status
+### 🔄 Cambiar estado de seguimiento – PUT /followups/change-status
 
 {
   "id": 1,
   "status": "REALIZADO"
 }
 
+----
+## 📄 Licencia
 
+Este proyecto está licenciado bajo los términos de la licencia MIT.
 
+Puedes usar, modificar y distribuir libremente el código con fines educativos o comerciales, siempre y cuando se incluya una copia de esta licencia y una atribución adecuada al autor original.
+
+---
+
+## 🤝 Contribuciones
+
+Las contribuciones al proyecto SISPROSA son bienvenidas.
+
+Si deseas proponer mejoras, reportar errores o colaborar en el desarrollo:
+
+    Haz un fork del repositorio.
+
+    Crea una rama con tu cambio: git checkout -b feature/nueva-funcionalidad
+
+    Realiza tus modificaciones y realiza commits claros.
+
+    Abre un Pull Request explicando tu propuesta.
+
+    Para sugerencias o mejoras, también puedes abrir un Issue.
