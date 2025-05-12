@@ -314,3 +314,160 @@ Roles admitidos:
 - CustomLogoutSuccessHandler — Comportamiento personalizado al cerrar sesión.
 - AuthenticationService — Lógica de login, emisión de tokens y autenticación.
 
+## ## 🧩 Módulos y Funcionalidades
+
+El sistema SISPROSA se organiza por módulos funcionales, accesibles según el rol del usuario autenticado. A continuación, se detallan los principales:
+
+---
+
+### 👤 Módulo de Pacientes (`/patients`)
+
+- Registro, edición, búsqueda y eliminación de pacientes.
+- Registro de información médica básica (peso, alergias, contacto, etc.).
+- Asociaciones con historial clínico y consultas.
+
+**Roles permitidos:** `ADMIN`, `PROFESSIONAL`, `READONLY`
+
+---
+
+### 📁 Historial Médico (`/medical_history`)
+
+- Registro 1:1 por paciente.
+- Incluye antecedentes personales, familiares, medicamentos, hábitos, alergias, vacunas.
+- Es creado por el profesional de salud autenticado.
+
+**Roles permitidos:** `ADMIN`, `PROFESSIONAL`, `READONLY`
+
+---
+
+### 🩺 Consultas Médicas (`/consultations`)
+
+- Alta de consultas clínicas con signos vitales, diagnóstico y tratamiento.
+- Asociadas a un paciente y a un profesional.
+- Soporte para seguimiento futuro.
+
+**Roles permitidos:** `ADMIN`, `PROFESSIONAL`
+
+---
+
+### 🔄 Seguimientos (`/followups`)
+
+- Asocia un seguimiento a una consulta específica.
+- Permite controlar estados: `PENDIENTE`, `REALIZADO`, `CANCELADO`.
+- Visualización desde lista o desde la consulta.
+
+**Roles permitidos:** `ADMIN`, `PROFESSIONAL`
+
+---
+
+### 🧑‍⚕️ Profesionales de Salud (`/professionals`)
+
+- Módulo de administración de usuarios del sistema.
+- Permite asignar roles y especialidades.
+- CRUD completo desde vista administrativa.
+
+**Roles permitidos:** `ADMIN`
+
+---
+
+### 🧬 Especialidades Médicas (`/specialties`)
+
+- Administración de las especialidades disponibles en el sistema.
+- Asociadas a profesionales mediante una tabla intermedia.
+
+**Roles permitidos:** `ADMIN`
+
+---
+
+### 📊 Reportes Clínicos
+
+- Generación de reportes de pacientes, consultas y seguimientos.
+- Descarga en PDF o envío por correo electrónico.
+- Automatización basada en vistas detalladas.
+
+**Roles permitidos:** según el módulo de origen
+
+---
+
+## 🧪 Ejemplos de Uso
+
+Esta sección ayuda a desarrolladores y testers a entender cómo interactuar con el sistema desde herramientas como Postman, curl o código front-end. Aquí incluimos:
+
+    🔐 Cómo iniciar sesión y obtener el token.
+
+    📥 Cómo acceder a rutas protegidas.
+
+    📤 Cómo enviar datos (crear pacientes, consultas, etc.).
+
+### ✅ Autenticación – Inicio de sesión
+
+📡 Petición POST /auth/login
+
+{
+  "email": "admin@sisprosa.com",
+  "password": "admin123"
+}
+
+📬 Respuesta
+
+{
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 3600000,
+  "user": {
+    "id": 1,
+    "email": "admin@sisprosa.com",
+    "roles": ["ROLE_ADMIN"]
+  }
+}
+
+### 🔐 Acceso a rutas protegidas
+
+Asegúrate de enviar el token en el encabezado:
+
+Authorization: Bearer <token>
+
+📥 Ejemplo GET /patients
+
+curl -H "Authorization: Bearer eyJhbGciOi..." http://localhost:8080/patients
+
+
+### 👤 Registro de paciente – POST /patients/save
+
+Cuerpo de ejemplo:
+
+{
+  "firstName": "Carlos",
+  "lastName": "Ramírez",
+  "birthDate": "1990-06-15",
+  "gender": "MASCULINO",
+  "identificationNumber": "CR900615XYZ",
+  "phone": "5566778899",
+  "weight": 72.5
+}
+
+    Campos como email, address, religious_preferences son opcionales.
+
+### 🩺 Crear consulta médica – POST /consultations/save
+
+{
+  "patientId": 1,
+  "consultationDate": "2024-05-12",
+  "reasonForConsultation": "Dolor abdominal",
+  "currentIllness": "Persistente desde hace 3 días",
+  "diagnosis": "Gastritis",
+  "treatment": "Omeprazol 20mg cada 12h",
+  "bloodPressure": 120,
+  "heartRate": 80,
+  "temperature": 37.2,
+  "respiratoryRate": 18
+}
+
+🔄 Cambiar estado de seguimiento – PUT /followups/change-status
+
+{
+  "id": 1,
+  "status": "REALIZADO"
+}
+
+
+
