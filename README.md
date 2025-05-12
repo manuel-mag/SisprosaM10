@@ -34,61 +34,109 @@ La aplicación SISPROSA sigue una arquitectura en capas. El backend está dividi
 
 ### 🧩 Backend
 
-com.sisprosa
-├── auth                 # Lógica de autenticación y usuarios
-│   ├── controller
-│   ├── dto
-│   ├── model
-│   ├── repository
-│   └── service
-├── security             # Configuración de JWT, logout y filtros
-│   ├── jwt
-│   ├── logout
-│   ├── request
-│   ├── dto
-│   ├── service
-│   └── SecurityConfiguration.java
-├── system               # Módulos funcionales del sistema
-│   ├── controller       # Pacientes, consultas, historiales, etc.
-│   ├── dto
-│   ├── model
-│   ├── repository
-│   ├── service
-│   ├── mapper
-│   ├── exception
-│   ├── audit            # Auditoría automática con Spring Data
-│   ├── config.audit     # Configuración de auditoría
-│   └── utils            # Utilidades: PDF, correo, generadores
-└── SisprosaApplication.java  # Punto de entrada principal
+
+
+    auth — Lógica de autenticación y usuarios
+
+        controller
+
+        dto
+
+        model
+
+        repository
+
+        service
+
+    security — Configuración de JWT, logout y filtros
+
+        jwt
+
+        logout
+
+        request
+
+        dto
+
+        service
+
+        SecurityConfiguration.java
+
+    system — Módulos funcionales del sistema
+
+        controller — Pacientes, consultas, historiales, etc.
+
+        dto
+
+        model
+
+        repository
+
+        service
+
+        mapper
+
+        exception
+
+        audit — Auditoría automática con Spring Data
+
+        config.audit — Configuración de auditoría
+
+        utils — PDF, correo, generadores
+
+    SisprosaApplication.java — Punto de entrada principal
 
 ### 📂 Recursos
 
-resources
-├── application.properties    # Configuración del entorno y base de datos
-├── db/
-│   ├── schema.sql            # Creación de tablas y relaciones
-│   └── data.sql              # Carga de roles, usuarios y datos base
-├── static/                   # Archivos estáticos para frontend
-│   ├── bootstrap/            # Archivos locales de Bootstrap
-│   ├── css/                  # Estilos generales y por módulo
-│   ├── iconos/               # Íconos personalizados
-│   ├── image/                # Imágenes para UI
-│   ├── js/                   # Scripts JS usados
-│   └── tema/                 # Temas visuales personalizados
-├── templates/                # Vistas Thymeleaf organizadas por módulo
-│   ├── auth/
-│   ├── consultations/
-│   ├── dashboard/
-│   ├── error/
-│   ├── followups/
-│   ├── fragments/            # Navbar, footer, layout común
-│   ├── landing/
-│   ├── legal/
-│   ├── medical_history/
-│   ├── patients/
-│   ├── professionals/
-│   └── specialties/
-└── testdata/                 # (opcional) Datos de prueba adicionales
+application.properties — Configuración del entorno y base de datos
+
+db/
+
+    schema.sql — Creación de tablas y relaciones
+
+    data.sql — Datos base (usuarios, roles, especialidades)
+
+static/ — Archivos estáticos para frontend
+
+    bootstrap/
+
+    css/
+
+    iconos/
+
+    image/
+
+    js/
+
+    tema/
+
+templates/ — Vistas Thymeleaf organizadas por módulo
+
+    auth/
+
+    consultations/
+
+    dashboard/
+
+    error/
+
+    followups/
+
+    fragments/ — Navbar, footer, layout común
+
+    landing/
+
+    legal/
+
+    medical_history/
+
+    patients/
+
+    professionals/
+
+    specialties/
+
+testdata/ — (opcional) Datos de prueba adicionales
 
 ---
 ## 🧰 Tecnologías Utilizadas
